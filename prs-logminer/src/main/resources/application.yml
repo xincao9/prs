@@ -1,0 +1,22 @@
+server:
+    port: 9000
+    address: 0.0.0.0
+spring:
+    application:
+        name: prs-logminer
+    kafka:
+        producer:
+            bootstrap-servers: localhost:9092
+            batch-size: 65536
+            acks: 1
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.apache.kafka.common.serialization.StringSerializer
+            retries: 3
+            buffer-memory: 4194304
+            default-topic: default-topic
+eureka:
+    instance:
+        hostname: prs-logminer
+    client:
+        serviceUrl:
+            defaultZone: http://peer1:8000/eureka/,http://peer2:8001/eureka/
