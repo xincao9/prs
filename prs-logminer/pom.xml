@@ -28,6 +28,11 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>com.xincao9</groupId>
+            <artifactId>prs-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
