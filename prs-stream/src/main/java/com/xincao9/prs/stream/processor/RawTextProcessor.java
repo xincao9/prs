@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- *
+ * 物料的明细信息存储到elasticsearch
+ * 
  * @author xincao9@gmail.com
  */
 @Component

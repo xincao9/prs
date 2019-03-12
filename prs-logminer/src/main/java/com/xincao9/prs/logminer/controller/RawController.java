@@ -1,7 +1,8 @@
 package com.xincao9.prs.logminer.controller;
 
+import com.google.gson.Gson;
 import com.xincao9.prs.api.constant.ConfigConsts;
-import org.apache.commons.lang.StringUtils;
+import com.xincao9.prs.api.model.Article;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +25,22 @@ public class RawController {
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
+    @Autowired
+    private Gson gson;
 
     /**
      * 上传文本格式内容
      *
-     * @param data
+     * @param article
      * @return
      */
     @PostMapping("text")
-    public ResponseEntity<String> post(@RequestBody String data) {
-        if (StringUtils.isBlank(data)) {
+    public ResponseEntity<String> post(@RequestBody Article article) {
+        if (article == null) {
             return ResponseEntity.status(400).build();
         }
         try {
+            String data = gson.toJson(article);
             kafkaTemplate.send(ConfigConsts.RAW_TEXT_TOPIC, String.valueOf(data.hashCode()), data);
             return ResponseEntity.ok().body("ok");
         } catch (Throwable e) {
