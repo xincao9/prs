@@ -1,8 +1,7 @@
 package com.xincao9.prs.logminer.controller;
 
-import com.xincao9.prs.api.model.Request;
-import com.xincao9.prs.logminer.constant.ConfigConsts;
-import java.net.URLDecoder;
+import com.xincao9.prs.api.constant.ConfigConsts;
+import io.micrometer.core.instrument.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +28,16 @@ public class RawController {
     /**
      * 上传文本格式内容
      *
-     * @param request
+     * @param data
      * @return
      */
     @PostMapping("text")
-    public ResponseEntity<String> post(@RequestBody Request<String> request) {
-        if (request == null) {
+    public ResponseEntity<String> post(@RequestBody String data) {
+        if (StringUtils.isBlank(data)) {
             return ResponseEntity.status(400).build();
         }
         try {
-            kafkaTemplate.send(ConfigConsts.RAW_TEXT_TOPIC, request.getOid (), URLDecoder.decode(request.getData(), "UTF-8"));
+            kafkaTemplate.send(ConfigConsts.RAW_TEXT_TOPIC, String.valueOf(data.hashCode()), data);
             return ResponseEntity.ok().body("ok");
         } catch (Throwable e) {
             LOGGER.error(e.getMessage());

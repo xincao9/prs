@@ -1,16 +1,9 @@
 server:
     port: 9000
     address: 0.0.0.0
-    tomcat: 
-        uri-encoding: UTF-8
 spring:
     application:
         name: prs-logminer
-    http:
-        encoding:
-            charset: UTF-8
-            force: true
-            enabled: true
     kafka:
         producer:
             bootstrap-servers: localhost:9092

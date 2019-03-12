@@ -10,6 +10,8 @@
         <module>prs-api</module>
         <module>prs-logminer</module>
         <module>prs-eureka</module>
+        <module>prs-zuul</module>
+        <module>prs-stream-processor</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
