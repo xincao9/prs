@@ -1,7 +1,9 @@
 package com.xincao9.prs.stream.processor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import com.xincao9.prs.api.constant.ConfigConsts;
+import com.xincao9.prs.api.model.Article;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
@@ -43,8 +45,10 @@ public class RawTextProcessor extends Thread {
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> kStream = builder.stream(ConfigConsts.RAW_TEXT_TOPIC);
         kStream.filter((String key, String value) -> StringUtils.isNotBlank(value)).foreach((String key, String value) -> {
-            List<String> keywords = HanLP.extractKeyword(value, 5);
-            LOGGER.info("content = {}, words = {}", value, keywords);
+            Article article = JSONObject.parseObject(value, Article.class);
+            List<String> summarykeywords = HanLP.extractKeyword(article.getSummary(), 5);
+            List<String> textKeywords = HanLP.extractKeyword(article.getText(), 5);
+            LOGGER.info("key = {}, value = {}", key, value);
         });
         KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), props);
         kafkaStreams.start();
