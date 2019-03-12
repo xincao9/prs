@@ -2,3 +2,4 @@
 /prs-api/target/
 /prs-eureka/target/
 /prs-stream-processor/target/
+/prs-zuul/target/

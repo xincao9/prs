@@ -1,0 +1,25 @@
+spring:
+    application:
+        name: prs-zuul
+    sleuth:
+        sampler:
+            percentage: 1.0
+    zipkin:
+        base-url: http://localhost:9411
+server:
+    address: 0.0.0.0
+    port: 8100
+zuul:
+    ignoredServices: '*'
+    prefix: /api
+    routes:
+        feed:
+            path: /logminer/**
+            serviceId: PRS-LOGMINER
+eureka:
+    instance:
+        hostname: prs-zuul
+    client:
+        serviceUrl:
+            defaultZone: http://peer1:8000/eureka/,http://peer2:8001/eureka/,http://peer3:8002/eureka/
+
