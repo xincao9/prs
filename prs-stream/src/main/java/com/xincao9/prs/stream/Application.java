@@ -1,4 +1,4 @@
-package com.xincao9.prs.stream.processor;
+package com.xincao9.prs.stream;
 
 import com.hankcs.hanlp.HanLP;
 import com.xincao9.prs.api.constant.ConfigConsts;

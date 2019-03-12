@@ -7,7 +7,7 @@ spring:
     kafka:
         producer:
             bootstrap-servers: localhost:9092
-            batch-size: 65536
+            batch-size: 65535
             acks: 1
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -19,4 +19,4 @@ eureka:
         hostname: prs-logminer
     client:
         serviceUrl:
-            defaultZone: http://peer1:8000/eureka/,http://peer2:8001/eureka/
+            defaultZone: http://root:asdf@peer1:8000/eureka/,http://root:asdf@peer2:8001/eureka/,http://root:asdf@peer3:8002/eureka/

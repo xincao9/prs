@@ -1,7 +1,7 @@
 package com.xincao9.prs.logminer.controller;
 
 import com.xincao9.prs.api.constant.ConfigConsts;
-import io.micrometer.core.instrument.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

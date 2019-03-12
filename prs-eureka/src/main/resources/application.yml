@@ -1,6 +1,18 @@
 spring:
   application:
     name: prs-eureka
+  profiles: peer1
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: true
+security:
+  basic:
+    enable: true
+  user:
+    name: root
+    password: asdf
+
 ---
 spring:
   profiles: peer1
