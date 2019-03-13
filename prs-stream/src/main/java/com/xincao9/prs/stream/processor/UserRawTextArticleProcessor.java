@@ -20,7 +20,6 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.apache.kafka.streams.kstream.Predicate;
-import org.apache.kafka.streams.kstream.Reducer;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.ValueMapper;
 import org.apache.kafka.streams.kstream.Windowed;
@@ -62,7 +61,7 @@ public class UserRawTextArticleProcessor extends Thread {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> kStream = builder.stream(ConfigConsts.USER_RAW_TEXT_ARTICLE_TOPIC);
-        KTable<Windowed<String>, Integer> kTable = kStream.filter(
+        KTable<Windowed<String>, Long> kTable = kStream.filter(
                 new Predicate<String, String>() {
             @Override
             public boolean test(String key, String value) {
@@ -82,26 +81,21 @@ public class UserRawTextArticleProcessor extends Thread {
                 });
                 return keywords;
             }
-        }).map(new KeyValueMapper<String, String, KeyValue<String, Integer>>() {
+        }).map(new KeyValueMapper<String, String, KeyValue<String, String>>() {
 
             @Override
-            public KeyValue<String, Integer> apply(String key, String value) {
-                return new KeyValue(String.format("%s:%s", key, value), 1);
+            public KeyValue<String, String> apply(String key, String value) {
+                return new KeyValue(String.format("%s:%s", key, value), "1");
             }
-        }).groupBy(new KeyValueMapper<String, Integer, String>() {
+        }).groupBy(new KeyValueMapper<String, String, String>() {
             @Override
-            public String apply(String key, Integer value) {
+            public String apply(String key, String value) {
                 return key;
             }
-        }).windowedBy(TimeWindows.of(10000)).reduce(new Reducer<Integer>() {
+        }).windowedBy(TimeWindows.of(10000).advanceBy(10000)).count();
+        kTable.toStream().foreach(new ForeachAction<Windowed<String>, Long>() {
             @Override
-            public Integer apply(Integer value1, Integer value2) {
-                return value1 + value2;
-            }
-        });
-        kTable.toStream().foreach(new ForeachAction<Windowed<String>, Integer>() {
-            @Override
-            public void apply(Windowed<String> key, Integer value) {
+            public void apply(Windowed<String> key, Long value) {
                 LOGGER.info("key = {}, value = {}", key, value);
                 String[] as = key.key().split(":");
                 redisTemplate.opsForZSet().add(String.format(CacheConsts.USER_SHORT_PROFILE_RAW_TEXT_ARTICLE, as[0]), as[1], value);
