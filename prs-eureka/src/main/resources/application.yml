@@ -2,16 +2,14 @@ spring:
   application:
     name: prs-eureka
   profiles: peer1
+  security:
+    user:
+      name: root
+      password: asdf
 eureka:
   client:
     registerWithEureka: false
     fetchRegistry: true
-security:
-  basic:
-    enable: true
-  user:
-    name: root
-    password: asdf
 
 ---
 spring:
@@ -23,7 +21,7 @@ eureka:
     hostname: peer1
   client:
     serviceUrl:
-      defaultZone: http://peer2:8001/eureka/,http://peer3:8002/eureka/
+      defaultZone: http://root:asdf@peer2:8001/eureka/,http://root:asdf@peer3:8002/eureka/
 ---
 spring:
   profiles: peer2
@@ -34,7 +32,7 @@ eureka:
     hostname: peer2
   client:
     serviceUrl:
-      defaultZone: http://peer1:8000/eureka/,http://peer3:8002/eureka/
+      defaultZone: http://root:asdf@peer1:8000/eureka/,http://root:asdf@peer3:8002/eureka/
 ---
 spring:
   profiles: peer3
@@ -45,4 +43,4 @@ eureka:
     hostname: peer3
   client:
     serviceUrl:
-      defaultZone: http://peer1:8000/eureka/,http://peer2:8001/eureka/
+      defaultZone: http://root:asdf@peer1:8000/eureka/,http://root:asdf@peer2:8001/eureka/
