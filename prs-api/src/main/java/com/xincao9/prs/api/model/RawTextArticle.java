@@ -4,17 +4,17 @@ package com.xincao9.prs.api.model;
  *
  * @author xincao9@gmail.com
  */
-public class Article {
+public class RawTextArticle {
 
     private String author;
     private String title;
     private String summary;
     private String text;
 
-    public Article() {
+    public RawTextArticle() {
     }
 
-    public Article(String author, String title, String summary, String text) {
+    public RawTextArticle(String author, String title, String summary, String text) {
         this.author = author;
         this.title = title;
         this.summary = summary;

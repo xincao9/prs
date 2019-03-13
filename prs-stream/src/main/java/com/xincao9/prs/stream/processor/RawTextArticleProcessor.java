@@ -3,8 +3,7 @@ package com.xincao9.prs.stream.processor;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
 import com.xincao9.prs.api.constant.ConfigConsts;
-import com.xincao9.prs.stream.entity.ArticleDO;
-import com.xincao9.prs.stream.repository.ArticleRepository;
+import com.xincao9.prs.stream.entity.RawTextArticleDO;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.xincao9.prs.stream.repository.RawTextArticleRepository;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class RawTextArticleProcessor extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(RawTextArticleProcessor.class);
 
     @Autowired
-    private ArticleRepository articleRepository;
+    private RawTextArticleRepository articleRepository;
 
     @PostConstruct
     public void initMethod() {
@@ -49,7 +49,7 @@ public class RawTextArticleProcessor extends Thread {
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> kStream = builder.stream(ConfigConsts.ARTICLE_TOPIC);
         kStream.filter((String key, String value) -> StringUtils.isNotBlank(value)).foreach((String key, String value) -> {
-            ArticleDO article = JSONObject.parseObject(value, ArticleDO.class);
+            RawTextArticleDO article = JSONObject.parseObject(value, RawTextArticleDO.class);
             List<String> summarykeywords = HanLP.extractKeyword(article.getSummary(), 5);
             List<String> textKeywords = HanLP.extractKeyword(article.getText(), 5);
             LOGGER.info("key = {}, value = {}", key, value);

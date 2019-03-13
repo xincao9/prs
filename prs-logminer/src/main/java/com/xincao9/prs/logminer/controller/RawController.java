@@ -2,7 +2,7 @@ package com.xincao9.prs.logminer.controller;
 
 import com.google.gson.Gson;
 import com.xincao9.prs.api.constant.ConfigConsts;
-import com.xincao9.prs.api.model.Article;
+import com.xincao9.prs.api.model.RawTextArticle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class RawController {
      * @return
      */
     @PostMapping("text/article")
-    public ResponseEntity<String> textArticle(@RequestBody Article article) {
+    public ResponseEntity<String> textArticle(@RequestBody RawTextArticle article) {
         if (article == null) {
             return ResponseEntity.status(400).build();
         }
