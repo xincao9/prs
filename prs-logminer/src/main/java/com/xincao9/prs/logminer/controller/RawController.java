@@ -41,7 +41,7 @@ public class RawController {
         }
         try {
             String data = gson.toJson(article);
-            kafkaTemplate.send(ConfigConsts.ARTICLE_TOPIC, String.valueOf(data.hashCode()), data);
+            kafkaTemplate.send(ConfigConsts.RAW_TEXT_ARTICLE_TOPIC, String.valueOf(data.hashCode()), data);
             return ResponseEntity.ok().body("ok");
         } catch (Throwable e) {
             LOGGER.error(e.getMessage());

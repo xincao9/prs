@@ -47,12 +47,14 @@ public class RawTextArticleProcessor extends Thread {
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10000);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> kStream = builder.stream(ConfigConsts.ARTICLE_TOPIC);
+        KStream<String, String> kStream = builder.stream(ConfigConsts.RAW_TEXT_ARTICLE_TOPIC);
         kStream.filter((String key, String value) -> StringUtils.isNotBlank(value)).foreach((String key, String value) -> {
             RawTextArticleDO article = JSONObject.parseObject(value, RawTextArticleDO.class);
             List<String> summarykeywords = HanLP.extractKeyword(article.getSummary(), 5);
             List<String> textKeywords = HanLP.extractKeyword(article.getText(), 5);
-            LOGGER.info("key = {}, value = {}", key, value);
+            article.setSummarykeywords(summarykeywords);
+            article.setTextKeywords(textKeywords);
+            LOGGER.info(JSONObject.toJSONString(article));
             articleRepository.save(article);
         });
         KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), props);

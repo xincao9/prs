@@ -6,5 +6,5 @@ package com.xincao9.prs.api.constant;
  */
 public class ConfigConsts {
 
-    public static final String ARTICLE_TOPIC = "article"; // 原始文本主题
+    public static final String RAW_TEXT_ARTICLE_TOPIC = "raw_text_article"; // 原始文本文章
 }
