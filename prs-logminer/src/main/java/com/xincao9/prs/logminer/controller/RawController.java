@@ -34,14 +34,14 @@ public class RawController {
      * @param article
      * @return
      */
-    @PostMapping("text")
-    public ResponseEntity<String> post(@RequestBody Article article) {
+    @PostMapping("text/article")
+    public ResponseEntity<String> textArticle(@RequestBody Article article) {
         if (article == null) {
             return ResponseEntity.status(400).build();
         }
         try {
             String data = gson.toJson(article);
-            kafkaTemplate.send(ConfigConsts.RAW_TEXT_TOPIC, String.valueOf(data.hashCode()), data);
+            kafkaTemplate.send(ConfigConsts.ARTICLE_TOPIC, String.valueOf(data.hashCode()), data);
             return ResponseEntity.ok().body("ok");
         } catch (Throwable e) {
             LOGGER.error(e.getMessage());
