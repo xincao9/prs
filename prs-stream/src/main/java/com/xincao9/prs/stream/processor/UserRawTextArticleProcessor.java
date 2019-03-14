@@ -22,8 +22,6 @@ import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.state.WindowStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -35,8 +33,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class UserRawTextArticleProcessor extends Thread {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserRawTextArticleProcessor.class);
 
     @Autowired
     private RawTextArticleRepository articleRepository;
@@ -81,7 +77,6 @@ public class UserRawTextArticleProcessor extends Thread {
                 }, Materialized.<String, Integer, WindowStore<Bytes, byte[]>>as("1").withKeySerde(Serdes.String()).withValueSerde(Serdes.Integer()))
                 .toStream()
                 .foreach((key, value) -> {
-                    LOGGER.info("key = {}, value = {}", key.key(), value);
                     String[] as = key.key().split(":");
                     redisTemplate.opsForZSet().add(String.format(CacheConsts.USER_SHORT_PROFILE_RAW_TEXT_ARTICLE, as[0]), as[1], value);
                 });

@@ -59,7 +59,10 @@ public class RawTextArticleProcessor extends Thread {
         });
         KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), props);
         kafkaStreams.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(kafkaStreams::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            kafkaStreams.close();
+            kafkaStreams.cleanUp();
+        }));
     }
 
 }
