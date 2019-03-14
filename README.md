@@ -2,6 +2,7 @@
 Personalized Recommendation Service
 
 wrk -t4 -c512 -d30s --script=logminer.lua --latency 'http://localhost:8100/api/logminer/raw/text'
+curl -H 'content-type:application/josn' -XGET 'http://localhost:9001/user/caoxin/raw_text_article' | jq .
 
 ## 应用层
 
