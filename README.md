@@ -1,7 +1,7 @@
 # prs
 Personalized Recommendation Service
 
-wrk -t4 -c512 -d30s --script=logminer.lua --latency 'http://localhost:8100/api/logminer/raw/text'
+ab -n 1000 'http://localhost:9000/user/caoxin/raw_text_article/%E9%AB%98%E7%AD%89%E6%95%99%E8%82%B2'
 curl -H 'content-type:application/josn' -XGET 'http://localhost:9001/user/caoxin/raw_text_article' | jq .
 
 ## 应用层

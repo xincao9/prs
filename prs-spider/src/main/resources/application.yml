@@ -1,0 +1,6 @@
+server:
+    port: 9002
+    address: 0.0.0.0
+spring:
+    application:
+        name: prs-spider

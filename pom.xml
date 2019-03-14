@@ -13,6 +13,7 @@
         <module>prs-zuul</module>
         <module>prs-stream</module>
         <module>prs-recommend</module>
+        <module>prs-spider</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
