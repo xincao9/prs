@@ -4,3 +4,10 @@
 /prs-stream-processor/target/
 /prs-zuul/target/
 /prs-stream/target/
+/.idea/
+/prs-api/prs-api.iml
+/prs-eureka/prs-eureka.iml
+/prs-logminer/prs-logminer.iml
+/prs-stream/prs-stream.iml
+/prs-zuul/prs-zuul.iml
+/prs.iml

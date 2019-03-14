@@ -10,19 +10,18 @@ import java.util.Properties;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.KeyValueMapper;
-import org.apache.kafka.streams.kstream.Predicate;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.kstream.TimeWindows;
-import org.apache.kafka.streams.kstream.ValueMapper;
-import org.apache.kafka.streams.kstream.Windowed;
+import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,51 +58,39 @@ public class UserRawTextArticleProcessor extends Thread {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10000);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> kStream = builder.stream(ConfigConsts.USER_RAW_TEXT_ARTICLE_TOPIC);
-        KTable<Windowed<String>, Long> kTable = kStream.filter(
-                new Predicate<String, String>() {
-            @Override
-            public boolean test(String key, String value) {
-                return StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value);
-            }
-        }
-        ).flatMapValues(new ValueMapper<String, Set<String>>() {
-            @Override
-            public Set<String> apply(String value) {
-                List<RawTextArticleDO> articleDOs = articleRepository.findByTitle(value);
-                if (articleDOs == null || articleDOs.isEmpty()) {
-                    return null;
-                }
-                Set<String> keywords = new HashSet();
-                articleDOs.forEach((articleDO) -> {
-                    keywords.addAll(articleDO.getTextKeywords());
+        kStream.filter((String key, String value) -> StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value))
+                .flatMapValues((String value) -> {
+                    List<RawTextArticleDO> articleDOs = articleRepository.findByTitle(value);
+                    if (articleDOs == null || articleDOs.isEmpty()) {
+                        return null;
+                    }
+                    Set<String> keywords = new HashSet();
+                    articleDOs.forEach((articleDO) -> {
+                        keywords.addAll(articleDO.getTextKeywords());
+                    });
+                    return keywords;
+                }).map((String key, String value) -> new KeyValue<String, Integer>(String.format("%s:%s", key, value), 1))
+                .groupByKey(Serialized.with(Serdes.String(), Serdes.Integer()))
+                .windowedBy(TimeWindows.of(30000).advanceBy(30000))
+                .reduce((Integer value1, Integer value2) -> {
+                    return value1 + value2;
+                }, Materialized.<String, Integer, WindowStore<Bytes, byte[]>>as("1").withKeySerde(Serdes.String()).withValueSerde(Serdes.Integer()))
+                .toStream()
+                .foreach((key, value) -> {
+                    LOGGER.info("key = {}, value = {}", key.key(), value);
+                    String[] as = key.key().split(":");
+                    redisTemplate.opsForZSet().add(String.format(CacheConsts.USER_SHORT_PROFILE_RAW_TEXT_ARTICLE, as[0]), as[1], value);
                 });
-                return keywords;
-            }
-        }).map(new KeyValueMapper<String, String, KeyValue<String, String>>() {
-
-            @Override
-            public KeyValue<String, String> apply(String key, String value) {
-                return new KeyValue(String.format("%s:%s", key, value), "1");
-            }
-        }).groupBy(new KeyValueMapper<String, String, String>() {
-            @Override
-            public String apply(String key, String value) {
-                return key;
-            }
-        }).windowedBy(TimeWindows.of(10000).advanceBy(10000)).count();
-        kTable.toStream().foreach(new ForeachAction<Windowed<String>, Long>() {
-            @Override
-            public void apply(Windowed<String> key, Long value) {
-                LOGGER.info("key = {}, value = {}", key, value);
-                String[] as = key.key().split(":");
-                redisTemplate.opsForZSet().add(String.format(CacheConsts.USER_SHORT_PROFILE_RAW_TEXT_ARTICLE, as[0]), as[1], value);
-            }
-        });
         KafkaStreams kafkaStreams = new KafkaStreams(builder.build(), props);
         kafkaStreams.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(kafkaStreams::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            kafkaStreams.close();
+            kafkaStreams.cleanUp();
+        }));
     }
 
 }
