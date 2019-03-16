@@ -74,7 +74,7 @@ public class UserRawTextArticleProcessor extends Thread {
                 .windowedBy(TimeWindows.of(30000).advanceBy(30000))
                 .reduce((Integer value1, Integer value2) -> {
                     return value1 + value2;
-                }, Materialized.<String, Integer, WindowStore<Bytes, byte[]>>as("1").withKeySerde(Serdes.String()).withValueSerde(Serdes.Integer()))
+                }, Materialized.<String, Integer, WindowStore<Bytes, byte[]>>as(getClass().getSimpleName()).withKeySerde(Serdes.String()).withValueSerde(Serdes.Integer()))
                 .toStream()
                 .foreach((key, value) -> {
                     String[] as = key.key().split(":");
