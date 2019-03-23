@@ -142,12 +142,3 @@ Personalized Recommendation Service
 * https://github.com/akullpp/awesome-java
 * https://db-engines.com/en/ranking
 
-
-## 系统层
-
-### 内存
-
-### CPU
-
-### 磁盘
-
